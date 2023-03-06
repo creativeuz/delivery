@@ -6,14 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-
 @Repository
 public interface RegionRepository extends JpaRepository<Region, Long> {
-    Region findByName(String name);
+    Region findByRegionName(String regionName);
 
-    @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Region r WHERE :placeName IN elements(r.placeNames)")
+    @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Region r WHERE :placeName IN elements(r.places)")
     boolean findByPlaceName(@Param("placeName") String placeName);
-
 }

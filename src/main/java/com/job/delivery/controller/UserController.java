@@ -1,66 +1,33 @@
 package com.job.delivery.controller;
 
 import com.job.delivery.entity.*;
-import com.job.delivery.security.UserValidator;
 import com.job.delivery.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @Controller
+@RequestMapping("/api")
 public class UserController {
-    @Autowired
     private final UserService userService;
-    @Autowired
-    private final UserValidator userValidator;
 
-    public UserController(UserService userService, UserValidator userValidator) {
+    @PostMapping("/signup")
+    public ResponseEntity<?> signUp(@Valid @RequestBody SignUpRequest signUpRequest) {
+        return userService.signup(signUpRequest);
+    }
+
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userValidator = userValidator;
     }
 
     @GetMapping("/regionsPerNT")
     public ResponseEntity<Map<String, List<Map<String, Object>>>> deliveryRegionsPerNT() {
         return userService.getRegionsWithSameTransactionCount();
-    }
-
-
-    @GetMapping("/registration")
-    public String registration(Model model) {
-        model.addAttribute("userForm", new User());
-
-        return "redirect:/login";
-    }
-
-    @PostMapping("/registration")
-    public String registration(@ModelAttribute("userForm") User userForm, BindingResult bindingResult) {
-        userValidator.validate(userForm, bindingResult);
-        if (bindingResult.hasErrors()) {
-            return "redirect:/registration";
-        }
-
-        userService.save(userForm);
-
-        return "redirect:/login";
-    }
-
-    @GetMapping("/login")
-    public String login(Model model, String error, String logout) {
-        if (error != null)
-            model.addAttribute("error", "Your username and password is invalid.");
-
-        if (logout != null)
-            model.addAttribute("message", "You have been logged out successfully.");
-
-        return ResponseEntity.status(HttpStatus.CREATED).toString();
     }
 
     @PostMapping("/addRegion")

@@ -12,8 +12,8 @@ import java.util.Map;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    @Query("SELECT t.offer.place.region, COUNT(t) FROM Transaction t GROUP BY t.offer.place.region")
-    List<Object[]> countTransactionsPerRegion();
+//    @Query("SELECT t.offer.place.region, COUNT(t) FROM Transaction t GROUP BY t.offer.place.region")
+//    List<Object[]> countTransactionsPerRegion();
 
     @Query(value = "SELECT COUNT(*) AS transaction_count, r.region_name " +
             "FROM transaction t " +
@@ -45,13 +45,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("SELECT COUNT(t) FROM Transaction t WHERE t.product=:product")
     Long countByProduct(Product product);
 
-    @Query("SELECT p.productId as productId, COUNT(t.transactionId) as transactionCount "
-            + "FROM Transaction t "
-            + "JOIN t.product p "
-            + "WHERE t.score > 0 "
-            + "GROUP BY p "
-            + "ORDER BY p.productName ASC")
-    List<Map<String, Object>> getTransactionCountPerProduct();
+//    @Query("SELECT p.productId as productId, COUNT(t.transactionId) as transactionCount "
+//            + "FROM Transaction t "
+//            + "JOIN t.product p "
+//            + "WHERE t.score > 0 "
+//            + "GROUP BY p "
+//            + "ORDER BY p.productName ASC")
+//    List<Map<String, Object>> getTransactionCountPerProduct();
 
 
 }

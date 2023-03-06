@@ -8,7 +8,4 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface RequestRepository extends JpaRepository<Request, Long> {
-    @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Request r WHERE r.placeName = ?1 AND r.productId = ?2")
-    boolean findByPlaceNameAndProductId(String placeName, String productId);
-
 }

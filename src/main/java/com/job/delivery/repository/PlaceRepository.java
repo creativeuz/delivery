@@ -8,8 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface PlaceRepository extends JpaRepository<Place, Long> {
-
-    @Query("SELECT p FROM Place p WHERE p.placeName = :placeName")
     Optional<Place> findByPlaceName(String placeName);
 
 }

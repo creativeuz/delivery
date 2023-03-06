@@ -1,8 +1,8 @@
 package com.job.delivery.service;
 
+import com.job.delivery.config.MyUserDetailsService;
 import com.job.delivery.entity.*;
 import com.job.delivery.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,20 +15,18 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TransactionRepository transactionRepository;
     private final ProductRepository productRepository;
-    @Autowired
     private final CarrierRepository carrierRepository;
     private final RequestRepository requestRepository;
     private final OfferRepository offerRepository;
     private final PlaceRepository placeRepository;
     private final RegionRepository regionRepository;
+    private final MyUserDetailsService myUserDetailsService;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder bCryptPasswordEncoder, TransactionRepository transactionRepository, ProductRepository productRepository, CarrierRepository carrierRepository, RequestRepository requestRepository, OfferRepository offerRepository, PlaceRepository placeRepository, RegionRepository regionRepository) {
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, TransactionRepository transactionRepository, ProductRepository productRepository, CarrierRepository carrierRepository, RequestRepository requestRepository, OfferRepository offerRepository, PlaceRepository placeRepository, RegionRepository regionRepository, MyUserDetailsService myUserDetailsService) {
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.transactionRepository = transactionRepository;
         this.productRepository = productRepository;
@@ -37,24 +35,22 @@ public class UserServiceImpl implements UserService {
         this.offerRepository = offerRepository;
         this.placeRepository = placeRepository;
         this.regionRepository = regionRepository;
+        this.myUserDetailsService = myUserDetailsService;
     }
 
     @Override
-    public void save(User user) {
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        user.setRoles(new HashSet<>(roleRepository.findAll()));
-        userRepository.save(user);
-    }
-
-    @Override
-    public User findByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public ResponseEntity<?> signup(SignUpRequest signUpRequest) {
+        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+            return ResponseEntity.badRequest().body("Error: Username is already taken!");
+        }
+        User user = myUserDetailsService.signUp(signUpRequest);
+        return ResponseEntity.ok("User registered successfully!");
     }
 
     @Override
     public ResponseEntity<?> addRegion(Region region) {
         // Check if region already exists in database
-        Optional<Region> optionalRegion = Optional.ofNullable(regionRepository.findByName(region.getRegionName()));
+        Optional<Region> optionalRegion = Optional.ofNullable(regionRepository.findByRegionName(region.getRegionName()));
         if (optionalRegion.isPresent()) {
             Region existingRegion = optionalRegion.get();
             Set<String> allPlaceNames = existingRegion.getPlaces().stream().map(Place::getPlaceName).collect(Collectors.toSet());
@@ -100,7 +96,7 @@ public class UserServiceImpl implements UserService {
             Set<String> uniqueRegionNames = (Set<String>) getRegionNames(carrier.getRegions());
             List<String> duplicateRegionNames = new ArrayList<>();
             for (String regionName : uniqueRegionNames) {
-                if (regionRepository.findByName(regionName) != null) {
+                if (regionRepository.findByRegionName(regionName) != null) {
                     uniqueRegionNames.remove(regionName);
                     duplicateRegionNames.add(regionName);
                 }
@@ -119,7 +115,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Optional<Carrier>> getCarriersForRegion(String regionName) {
-        Region region = regionRepository.findByName(regionName);
+        Region region = regionRepository.findByRegionName(regionName);
         if (region == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Region not found");
         }
@@ -378,7 +374,7 @@ public class UserServiceImpl implements UserService {
     private List<Region> getRegionsByName(List<String> regionNames) {
         List<Region> regions = new ArrayList<>();
         for (String regionName : regionNames) {
-            Optional<Region> optionalRegion = Optional.ofNullable(regionRepository.findByName(regionName));
+            Optional<Region> optionalRegion = Optional.ofNullable(regionRepository.findByRegionName(regionName));
             optionalRegion.ifPresent(regions::add);
         }
         return regions;

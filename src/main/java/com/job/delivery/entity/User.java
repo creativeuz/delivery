@@ -1,12 +1,7 @@
 package com.job.delivery.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.util.Set;
+import lombok.*;
 
 @Getter
 @Setter
@@ -16,18 +11,16 @@ import java.util.Set;
 @Table(name = "user")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @SequenceGenerator(name="user_generator", sequenceName = "user_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "user_generator")
     private Long userId;
 
     private String username;
 
-    private String userEmail;
-
     private String password;
 
-    private String passwordConfirm;
-
-    @ManyToMany
-    private Set<Role> roles;
-
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 }

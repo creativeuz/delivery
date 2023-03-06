@@ -12,9 +12,7 @@ import java.util.Optional;
 
 @Service
 public interface UserService {
-    void save(User user);
-
-    User findByUsername(String username);
+    ResponseEntity<?> signup(SignUpRequest signUpRequest);
 
     ResponseEntity<?> addRegion(Region region);
 
@@ -27,7 +25,6 @@ public interface UserService {
     ResponseEntity<Object> addTransaction(@RequestBody Transaction transaction);
 
     ResponseEntity<Map<String, List<Map<String, Object>>>> getRegionsWithSameTransactionCount();
-
 
     ResponseEntity<String> evaluateTransaction(@RequestParam Long transactionId, @RequestParam int score);
 
