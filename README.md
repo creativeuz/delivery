@@ -4,6 +4,7 @@ Transaction managementREST
 Mahsulot yetkazib berishga ximat qiluvchi mobil dasturi uchun REST API yaratish. 
 	
 Tizim quyidagilardan tashkil topgan:
+
 1.Hudud va shu hududda joylashgan joylar (regions and places located in the region)
 2.Tashuvchi yani curyer (Carrier)
 3.Biror bir mahsulotga bo’lgan so’rov (Request)
