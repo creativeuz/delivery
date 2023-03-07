@@ -29,7 +29,7 @@ public class SecurityConfiguration implements WebSecurityCustomizer {
         http.csrf()
                 .disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/login/**", "/signup/**", "/api/**")
+                .requestMatchers("/login/**", "/userApi/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
@@ -41,7 +41,7 @@ public class SecurityConfiguration implements WebSecurityCustomizer {
 
     @Override
     public void customize(WebSecurity web) {
-        web.ignoring().requestMatchers("/css/**", "/js/**", "/api/signup");
+        web.ignoring().requestMatchers("/css/**", "/js/**", "/userApi/signup");
     }
 
 }
