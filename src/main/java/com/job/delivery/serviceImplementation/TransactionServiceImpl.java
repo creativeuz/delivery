@@ -4,17 +4,26 @@ import com.job.delivery.entity.*;
 import com.job.delivery.exception.TransactionException;
 import com.job.delivery.repository.*;
 import com.job.delivery.service.TransactionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.*;
 
 public class TransactionServiceImpl implements TransactionService {
-    private TransactionRepository transactionRepository;
-    private RequestRepository requestRepository;
-    private OfferRepository offerRepository;
-    private CarrierRepository carrierRepository;
-    private ProductRepository productRepository;
+    private final TransactionRepository transactionRepository;
+    private final RequestRepository requestRepository;
+    private final OfferRepository offerRepository;
+    private final CarrierRepository carrierRepository;
+    private final ProductRepository productRepository;
+
+    public TransactionServiceImpl(TransactionRepository transactionRepository, RequestRepository requestRepository, OfferRepository offerRepository, CarrierRepository carrierRepository, ProductRepository productRepository) {
+        this.transactionRepository = transactionRepository;
+        this.requestRepository = requestRepository;
+        this.offerRepository = offerRepository;
+        this.carrierRepository = carrierRepository;
+        this.productRepository = productRepository;
+    }
 
     @Override
     public ResponseEntity<Object> addTransaction(Transaction transaction) {
