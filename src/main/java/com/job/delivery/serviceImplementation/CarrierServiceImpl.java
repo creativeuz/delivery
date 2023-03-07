@@ -2,12 +2,12 @@ package com.job.delivery.serviceImplementation;
 
 import com.job.delivery.entity.Carrier;
 import com.job.delivery.entity.Region;
+import com.job.delivery.exception.CarrierException;
 import com.job.delivery.repository.CarrierRepository;
 import com.job.delivery.repository.RegionRepository;
 import com.job.delivery.repository.TransactionRepository;
 import com.job.delivery.service.CarrierService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
@@ -24,7 +24,7 @@ public class CarrierServiceImpl implements CarrierService {
     }
 
     @Override
-    public ResponseEntity<?> addCarrier(Carrier carrier) {
+    public List<String> addCarrier(Carrier carrier) {
         Optional<Carrier> optionalCarrier = carrierRepository.findByCarrierName(carrier.getCarrierName());
         if (optionalCarrier.isPresent()) {
             Carrier existingCarrier = optionalCarrier.get();
@@ -33,7 +33,7 @@ public class CarrierServiceImpl implements CarrierService {
             allRegionNames.addAll(getRegionNames(carrier.getRegions()));
             existingCarrier.setRegions((ArrayList<Region>) getRegionsByName(new ArrayList<>(allRegionNames)));
             carrierRepository.save(existingCarrier);
-            return ResponseEntity.ok().body(getRegionNames(existingCarrier.getRegions()));
+            return getRegionNames(existingCarrier.getRegions());
         } else {
             // Check for duplicates in region names
             Set<String> uniqueRegionNames = (Set<String>) getRegionNames(carrier.getRegions());
@@ -46,12 +46,12 @@ public class CarrierServiceImpl implements CarrierService {
             }
             // If there are duplicates, remove them and return bad request
             if (!duplicateRegionNames.isEmpty()) {
-                return ResponseEntity.badRequest().body("Duplicate region names: " + duplicateRegionNames);
+                throw new CarrierException("Duplicate region names: " + duplicateRegionNames);
             }
             // Otherwise, save carrier and return added region names
             carrier.setRegions((ArrayList<Region>) getRegionsByName(new ArrayList<>(uniqueRegionNames)));
             carrierRepository.save(carrier);
-            return ResponseEntity.ok().body(getRegionNames(carrier.getRegions()));
+            return getRegionNames(carrier.getRegions());
         }
     }
 

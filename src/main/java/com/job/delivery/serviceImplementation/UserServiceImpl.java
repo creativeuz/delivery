@@ -2,9 +2,9 @@ package com.job.delivery.serviceImplementation;
 
 import com.job.delivery.config.MyUserDetailsService;
 import com.job.delivery.entity.SignUpRequest;
+import com.job.delivery.exception.UserException;
 import com.job.delivery.repository.*;
 import com.job.delivery.service.UserService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,12 +19,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<?> signup(SignUpRequest signUpRequest) {
+    public void signup(SignUpRequest signUpRequest) {
         if (Boolean.TRUE.equals(userRepository.existsByUsername(signUpRequest.getUsername()))) {
-            return ResponseEntity.badRequest().body("Error: Username is already taken!");
+            throw new UserException("Error: Username is already taken!");
         }
         myUserDetailsService.signUp(signUpRequest);
-        return ResponseEntity.ok("User registered successfully!");
+//        return "User registered successfully!";
     }
 }
 

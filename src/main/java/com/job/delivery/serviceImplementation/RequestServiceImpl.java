@@ -24,7 +24,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public ResponseEntity<?> addRequest(Map<String, String> requestDetails) {
+    public Object addRequest(Map<String, String> requestDetails) {
         String requestId = requestDetails.get("requestId");
         String placeName = requestDetails.get("placeName");
         String productId = requestDetails.get("productId");
@@ -56,7 +56,7 @@ public class RequestServiceImpl implements RequestService {
         request.getProducts().add(product);
         requestRepository.save(request);
 
-        return ResponseEntity.ok().body(request);
+        return request;
     }
 
 

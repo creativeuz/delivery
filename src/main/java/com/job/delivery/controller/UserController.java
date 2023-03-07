@@ -1,6 +1,7 @@
 package com.job.delivery.controller;
 
 import com.job.delivery.entity.SignUpRequest;
+import com.job.delivery.exception.UserException;
 import com.job.delivery.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,7 +22,12 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@Valid @RequestBody SignUpRequest signUpRequest) {
-        return userService.signup(signUpRequest);
+        try {
+            userService.signup(signUpRequest);
+            return ResponseEntity.ok().body("User registered successfully!");
+        } catch (UserException u) {
+            return ResponseEntity.badRequest().body(u);
+        }
     }
 }
 

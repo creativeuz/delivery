@@ -21,7 +21,8 @@ public class RequestController {
 
     @PostMapping("/addRequest")
     public ResponseEntity<?> addRequest(@RequestBody Map<String, String> requestDetails) {
-        return requestService.addRequest(requestDetails);
+        Object o = requestService.addRequest(requestDetails);
+        return ResponseEntity.ok(o);
     }
 
 }

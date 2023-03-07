@@ -23,7 +23,7 @@ public class OfferServiceImpl implements OfferService {
     }
 
     @Override
-    public ResponseEntity<?> addOffer(Offer offer) {
+    public Object addOffer(Offer offer) {
         // Check if place exists in database
         Optional<Place> optionalPlace = placeRepository.findByPlaceName(offer.getPlace().getPlaceName());
         Place place;
@@ -74,6 +74,6 @@ public class OfferServiceImpl implements OfferService {
         }
         placeRepository.save(place);
 
-        return ResponseEntity.ok().body(offer);
+        return offer;
     }
 }

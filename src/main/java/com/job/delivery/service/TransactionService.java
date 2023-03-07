@@ -13,7 +13,7 @@ import java.util.Map;
 public interface TransactionService {
     ResponseEntity<Object> addTransaction(@RequestBody Transaction transaction);
 
-    ResponseEntity<String> evaluateTransaction(@RequestParam Long transactionId, @RequestParam int score);
+    boolean evaluateTransaction(@RequestParam Long transactionId, @RequestParam int score);
 
     Map<String, List<Map<String, Object>>> getTransactionCountPerProduct();
 

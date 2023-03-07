@@ -2,10 +2,10 @@ package com.job.delivery.serviceImplementation;
 
 import com.job.delivery.entity.Place;
 import com.job.delivery.entity.Region;
+import com.job.delivery.exception.RegionException;
 import com.job.delivery.repository.RegionRepository;
 import com.job.delivery.repository.TransactionRepository;
 import com.job.delivery.service.RegionService;
-import org.springframework.http.ResponseEntity;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,7 +20,7 @@ public class RegionServiceImpl implements RegionService {
     }
 
     @Override
-    public ResponseEntity<?> addRegion(Region region) {
+    public List<String> addRegion(Region region) {
         // Check if region already exists in database
         Optional<Region> optionalRegion = Optional.ofNullable(regionRepository.findByRegionName(region.getRegionName()));
         if (optionalRegion.isPresent()) {
@@ -29,7 +29,7 @@ public class RegionServiceImpl implements RegionService {
             allPlaceNames.addAll(region.getPlaces().stream().map(Place::getPlaceName).toList());
             existingRegion.setPlaces(new ArrayList<>(region.getPlaces()));
             regionRepository.save(existingRegion);
-            return ResponseEntity.ok().body(existingRegion.getPlaces().stream().map(Place::getPlaceName).toList());
+            return existingRegion.getPlaces().stream().map(Place::getPlaceName).toList();
         } else {
             // Check for duplicates in place names
             Set<String> uniquePlaceNames = region.getPlaces().stream().map(Place::getPlaceName).collect(Collectors.toSet());
@@ -42,17 +42,17 @@ public class RegionServiceImpl implements RegionService {
             }
             // If there are duplicates, remove them and return bad request
             if (!duplicatePlaceNames.isEmpty()) {
-                return ResponseEntity.badRequest().body("Duplicate place names: " + duplicatePlaceNames);
+                throw new RegionException("Duplicate place names:"  + duplicatePlaceNames);
             }
             // Otherwise, save region and return added place names
             region.setPlaces(new ArrayList<>(region.getPlaces()));
             regionRepository.save(region);
-            return ResponseEntity.ok().body(region.getPlaces().stream().map(Place::getPlaceName).toList());
+            return region.getPlaces().stream().map(Place::getPlaceName).toList();
         }
     }
 
     @Override
-    public ResponseEntity<Map<String, List<Map<String, Object>>>> getRegionsWithSameTransactionCount() {
+    public Map<String, List<Map<String, Object>>> getRegionsWithSameTransactionCount() {
         Map<String, List<Map<String, Object>>> responseMap = new HashMap<>();
         List<Map<String, Object>> responseList = new ArrayList<>();
 
@@ -95,7 +95,7 @@ public class RegionServiceImpl implements RegionService {
         }
 
         responseMap.put("response", responseList);
-        return ResponseEntity.ok(responseMap);
+        return responseMap;
     }
 
 }

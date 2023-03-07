@@ -1,6 +1,7 @@
 package com.job.delivery.serviceImplementation;
 
 import com.job.delivery.entity.*;
+import com.job.delivery.exception.TransactionException;
 import com.job.delivery.repository.*;
 import com.job.delivery.service.TransactionService;
 import org.springframework.http.HttpStatus;
@@ -60,18 +61,18 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public ResponseEntity<String> evaluateTransaction(Long transactionId, int score) {
+    public boolean evaluateTransaction(Long transactionId, int score) {
         Optional<Transaction> optionalTransaction = transactionRepository.findById(transactionId);
         if (optionalTransaction.isEmpty()) {
-            return ResponseEntity.badRequest().body("Invalid transaction ID");
+            throw new TransactionException("Invalid transaction ID");
         }
         Transaction transaction = optionalTransaction.get();
         if (score < 1 || score > 10) {
-            return ResponseEntity.badRequest().body("Score must be between 1 and 10 (inclusive)");
+            throw new TransactionException("Score must be between 1 and 10 (inclusive)");
         }
         transaction.setScore(score);
         transactionRepository.save(transaction);
-        return ResponseEntity.ok("Transaction evaluated successfully");
+        return true;
     }
 
     @Override

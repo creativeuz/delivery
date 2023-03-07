@@ -1,6 +1,7 @@
 package com.job.delivery.controller;
 
 import com.job.delivery.entity.Transaction;
+import com.job.delivery.exception.TransactionException;
 import com.job.delivery.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +22,21 @@ public class TransactionController {
     }
 
     @PostMapping("/evaluateTransaction")
-    public ResponseEntity<String> evaluateTransaction(@RequestParam Long transactionId, @RequestParam int score) {
-        return transactionService.evaluateTransaction(transactionId, score);
+    public ResponseEntity<?> evaluateTransaction(@RequestParam Long transactionId, @RequestParam int score) {
+        try {
+            boolean b = transactionService.evaluateTransaction(transactionId, score);
+            return ResponseEntity.ok(b);
+        }catch (TransactionException t){
+            if(t.getMessage().equals("Score must be between 1 and 10 (inclusive)")){
+                return ResponseEntity.ok(false);
+            }
+            else return ResponseEntity.badRequest().body(t.getMessage());
+        }
     }
 
     @GetMapping("/count-transac-per-product")
-    public Map<String, List<Map<String, Object>>> getTransactionCountPerProduct() {
-        return transactionService.getTransactionCountPerProduct();
+    public ResponseEntity<Map<String, List<Map<String, Object>>>> getTransactionCountPerProduct() {
+        Map<String, List<Map<String, Object>>> transactionCountPerProduct = transactionService.getTransactionCountPerProduct();
+        return ResponseEntity.ok().body(transactionCountPerProduct);
     }
 }

@@ -23,12 +23,14 @@ public class RegionController {
 
     @PostMapping("/addRegion")
     public ResponseEntity<?> addRegion(@RequestBody Region region) {
-        return regionService.addRegion(region);
+        List<String> strings = regionService.addRegion(region);
+        return ResponseEntity.ok(strings);
     }
 
     @GetMapping("/regionsPerNT")
     public ResponseEntity<Map<String, List<Map<String, Object>>>> deliveryRegionsPerNT() {
-        return regionService.getRegionsWithSameTransactionCount();
+        Map<String, List<Map<String, Object>>> regionsWithSameTransactionCount = regionService.getRegionsWithSameTransactionCount();
+        return ResponseEntity.ok(regionsWithSameTransactionCount);
     }
 
 }
