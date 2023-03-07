@@ -5,7 +5,6 @@ import com.job.delivery.entity.*;
 import com.job.delivery.repository.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -14,8 +13,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
+    private final String RESPONSE = "response";
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TransactionRepository transactionRepository;
     private final ProductRepository productRepository;
     private final CarrierRepository carrierRepository;
@@ -25,9 +24,8 @@ public class UserServiceImpl implements UserService {
     private final RegionRepository regionRepository;
     private final MyUserDetailsService myUserDetailsService;
 
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, TransactionRepository transactionRepository, ProductRepository productRepository, CarrierRepository carrierRepository, RequestRepository requestRepository, OfferRepository offerRepository, PlaceRepository placeRepository, RegionRepository regionRepository, MyUserDetailsService myUserDetailsService) {
+    public UserServiceImpl(UserRepository userRepository, TransactionRepository transactionRepository, ProductRepository productRepository, CarrierRepository carrierRepository, RequestRepository requestRepository, OfferRepository offerRepository, PlaceRepository placeRepository, RegionRepository regionRepository, MyUserDetailsService myUserDetailsService) {
         this.userRepository = userRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.transactionRepository = transactionRepository;
         this.productRepository = productRepository;
         this.carrierRepository = carrierRepository;
@@ -40,10 +38,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<?> signup(SignUpRequest signUpRequest) {
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+        if (Boolean.TRUE.equals(userRepository.existsByUsername(signUpRequest.getUsername()))) {
             return ResponseEntity.badRequest().body("Error: Username is already taken!");
         }
-        User user = myUserDetailsService.signUp(signUpRequest);
+        myUserDetailsService.signUp(signUpRequest);
         return ResponseEntity.ok("User registered successfully!");
     }
 
@@ -57,7 +55,7 @@ public class UserServiceImpl implements UserService {
             allPlaceNames.addAll(region.getPlaces().stream().map(Place::getPlaceName).toList());
             existingRegion.setPlaces(new ArrayList<>(region.getPlaces()));
             regionRepository.save(existingRegion);
-            return ResponseEntity.ok().body(existingRegion.getPlaces().stream().map(Place::getPlaceName).collect(Collectors.toList()));
+            return ResponseEntity.ok().body(existingRegion.getPlaces().stream().map(Place::getPlaceName).toList());
         } else {
             // Check for duplicates in place names
             Set<String> uniquePlaceNames = region.getPlaces().stream().map(Place::getPlaceName).collect(Collectors.toSet());
@@ -75,7 +73,7 @@ public class UserServiceImpl implements UserService {
             // Otherwise, save region and return added place names
             region.setPlaces(new ArrayList<>(region.getPlaces()));
             regionRepository.save(region);
-            return ResponseEntity.ok().body(region.getPlaces().stream().map(Place::getPlaceName).collect(Collectors.toList()));
+            return ResponseEntity.ok().body(region.getPlaces().stream().map(Place::getPlaceName).toList());
         }
     }
 
@@ -272,7 +270,7 @@ public class UserServiceImpl implements UserService {
             responseList.add(responseEntry);
         }
 
-        responseMap.put("response", responseList);
+        responseMap.put(RESPONSE, responseList);
         return ResponseEntity.ok(responseMap);
     }
 
@@ -305,7 +303,7 @@ public class UserServiceImpl implements UserService {
             result.add(map);
         }
         Map<String, Object> response = new HashMap<>();
-        response.put("response", result);
+        response.put(RESPONSE, result);
         return Collections.singletonList(response);
     }
 
@@ -324,7 +322,7 @@ public class UserServiceImpl implements UserService {
         }
         // sort the result by product id
         result.sort(Comparator.comparing(m -> (Long) m.get("productId")));
-        return Collections.singletonMap("response", result);
+        return Collections.singletonMap(RESPONSE, result);
     }
 
     @Override
@@ -341,7 +339,7 @@ public class UserServiceImpl implements UserService {
         Product product = optionalProduct.get();
 
         // Check if the request already exists in the database
-        Optional<Request> optionalRequest = Optional.ofNullable(requestRepository.findById(Long.parseLong(requestId)).orElse(null));
+        Optional<Request> optionalRequest = requestRepository.findById(Long.parseLong(requestId));
         if (optionalRequest.isPresent()) {
             return ResponseEntity.badRequest().body("Request with id " + requestId + " already exists");
         }
