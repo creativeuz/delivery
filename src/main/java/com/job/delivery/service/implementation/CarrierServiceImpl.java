@@ -1,4 +1,4 @@
-package com.job.delivery.serviceImplementation;
+package com.job.delivery.service.implementation;
 
 import com.job.delivery.entity.Carrier;
 import com.job.delivery.entity.Region;
@@ -35,7 +35,6 @@ public class CarrierServiceImpl implements CarrierService {
             carrierRepository.save(existingCarrier);
             return getRegionNames(existingCarrier.getRegions());
         } else {
-            // Check for duplicates in region names
             Set<String> uniqueRegionNames = (Set<String>) getRegionNames(carrier.getRegions());
             List<String> duplicateRegionNames = new ArrayList<>();
             for (String regionName : uniqueRegionNames) {
@@ -44,11 +43,9 @@ public class CarrierServiceImpl implements CarrierService {
                     duplicateRegionNames.add(regionName);
                 }
             }
-            // If there are duplicates, remove them and return bad request
             if (!duplicateRegionNames.isEmpty()) {
                 throw new CarrierException("Duplicate region names: " + duplicateRegionNames);
             }
-            // Otherwise, save carrier and return added region names
             carrier.setRegions((ArrayList<Region>) getRegionsByName(new ArrayList<>(uniqueRegionNames)));
             carrierRepository.save(carrier);
             return getRegionNames(carrier.getRegions());

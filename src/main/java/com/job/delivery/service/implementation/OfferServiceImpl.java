@@ -1,4 +1,4 @@
-package com.job.delivery.serviceImplementation;
+package com.job.delivery.service.implementation;
 
 import com.job.delivery.entity.Offer;
 import com.job.delivery.entity.Place;
@@ -24,12 +24,10 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public Object addOffer(Offer offer) {
-        // Check if place exists in database
         Optional<Place> optionalPlace = placeRepository.findByPlaceName(offer.getPlace().getPlaceName());
         Place place;
         place = optionalPlace.orElseGet(offer::getPlace);
 
-        // Check for duplicates in product names
         Set<String> uniqueProductNames = new HashSet<>();
         List<String> duplicateProductNames = new ArrayList<>();
         for (Product product : offer.getProducts()) {
@@ -40,12 +38,10 @@ public class OfferServiceImpl implements OfferService {
             }
         }
 
-        // If there are duplicates, return bad request
         if (!duplicateProductNames.isEmpty()) {
             return ResponseEntity.badRequest().body("Duplicate product names: " + duplicateProductNames);
         }
 
-        // Save products with unique names
         ArrayList<Product> products = new ArrayList<>();
         for (String productName : uniqueProductNames) {
             Product product = new Product();
@@ -54,12 +50,10 @@ public class OfferServiceImpl implements OfferService {
             products.add(product);
         }
 
-        // Save offer with place and products
         offer.setPlace(place);
         offer.setProducts(products);
         offerRepository.save(offer);
 
-        // Update offers in place and products
         ArrayList<Offer> placeOffers = place.getOffers();
         ArrayList<Offer> productOffers = new ArrayList<>();
         for (Product product : products) {

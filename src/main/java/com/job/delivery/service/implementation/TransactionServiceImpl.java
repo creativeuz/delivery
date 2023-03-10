@@ -1,10 +1,9 @@
-package com.job.delivery.serviceImplementation;
+package com.job.delivery.service.implementation;
 
 import com.job.delivery.entity.*;
 import com.job.delivery.exception.TransactionException;
 import com.job.delivery.repository.*;
 import com.job.delivery.service.TransactionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -97,7 +96,6 @@ public class TransactionServiceImpl implements TransactionService {
                 result.add(map);
             }
         }
-        // sort the result by product id
         result.sort(Comparator.comparing(m -> (Long) m.get("productId")));
         return Collections.singletonMap("response", result);
     }

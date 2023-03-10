@@ -1,4 +1,4 @@
-package com.job.delivery.serviceImplementation;
+package com.job.delivery.service.implementation;
 
 import com.job.delivery.entity.Place;
 import com.job.delivery.entity.Region;
@@ -21,7 +21,6 @@ public class RegionServiceImpl implements RegionService {
 
     @Override
     public List<String> addRegion(Region region) {
-        // Check if region already exists in database
         Optional<Region> optionalRegion = Optional.ofNullable(regionRepository.findByRegionName(region.getRegionName()));
         if (optionalRegion.isPresent()) {
             Region existingRegion = optionalRegion.get();
@@ -31,7 +30,6 @@ public class RegionServiceImpl implements RegionService {
             regionRepository.save(existingRegion);
             return existingRegion.getPlaces().stream().map(Place::getPlaceName).toList();
         } else {
-            // Check for duplicates in place names
             Set<String> uniquePlaceNames = region.getPlaces().stream().map(Place::getPlaceName).collect(Collectors.toSet());
             List<String> duplicatePlaceNames = new ArrayList<>();
             for (Place place : region.getPlaces()) {
@@ -40,11 +38,9 @@ public class RegionServiceImpl implements RegionService {
                     duplicatePlaceNames.add(place.getPlaceName());
                 }
             }
-            // If there are duplicates, remove them and return bad request
             if (!duplicatePlaceNames.isEmpty()) {
                 throw new RegionException("Duplicate place names:"  + duplicatePlaceNames);
             }
-            // Otherwise, save region and return added place names
             region.setPlaces(new ArrayList<>(region.getPlaces()));
             regionRepository.save(region);
             return region.getPlaces().stream().map(Place::getPlaceName).toList();
@@ -63,10 +59,8 @@ public class RegionServiceImpl implements RegionService {
         for (Object[] result : resultList) {
             int resultTransactionNumber = ((Number) result[0]).intValue();
             String regionName = (String) result[1];
-            // Add other fields as needed
 
             if (resultTransactionNumber != transactionNumber) {
-                // New transaction number encountered, create new entry in response
                 if (!regions.isEmpty()) {
                     Map<String, Object> responseEntry = new HashMap<>();
                     responseEntry.put("transactionNumber", transactionNumber);
@@ -74,19 +68,16 @@ public class RegionServiceImpl implements RegionService {
                     responseList.add(responseEntry);
                 }
 
-                // Update current transaction number and clear regions list
                 transactionNumber = resultTransactionNumber;
                 regions = new ArrayList<>();
             }
 
-            // Add region to current transaction number entry
             Map<String, Object> regionEntry = new HashMap<>();
             regionEntry.put("regionName", regionName);
             // Add other fields as needed
             regions.add(regionEntry);
         }
 
-        // Add final transaction number entry to response
         if (!regions.isEmpty()) {
             Map<String, Object> responseEntry = new HashMap<>();
             responseEntry.put("transactionNumber", transactionNumber);

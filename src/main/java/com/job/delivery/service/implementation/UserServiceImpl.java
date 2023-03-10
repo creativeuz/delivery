@@ -1,4 +1,4 @@
-package com.job.delivery.serviceImplementation;
+package com.job.delivery.service.implementation;
 
 import com.job.delivery.config.MyUserDetailsService;
 import com.job.delivery.entity.SignUpRequest;
